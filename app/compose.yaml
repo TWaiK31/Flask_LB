@@ -1,0 +1,35 @@
+---
+services:
+  http-server:
+    image: http-server:latest
+    restart: always
+#   ports:
+#      - "5001-5005:5000"
+    networks:
+      - backend
+    build: ./http-server
+    deploy:
+      mode: replicated
+      replicas: "5"
+      endpoint_mode: dnsrr
+      placement:
+        max_replicas_per_node: "5"
+  flask:
+    image: balancer:latest
+    restart: always
+    ports:
+     - "5000:5000"
+    networks:
+      - frontend
+      - backend
+    build: ./balancer
+    deploy:
+      mode: replicated
+      replicas: "1"
+networks:
+  frontend:
+    name: frontend
+    driver: bridge
+  backend:
+    name: backend
+    driver: bridge
